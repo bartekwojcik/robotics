@@ -53,15 +53,14 @@ void Detector::detectFace(Mat frame)
 	{
 		//find a faces center
 		Point center(faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5);
-		//draw an pink elipse
-		Point topLeft = Point(faces[i].x + faces[i].width);
-		Point bottomRight = Point(faces[i].y + faces[i].height);
-		rectangle(src, topLeft, bottomRight, Scalar(255, 0, 255), 4, 8, 0);
+		//draw an elipse
+		ellipse(src, center, Size(faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, Scalar(255, 255, 0), 4, 8, 0);
 
 		Mat faceROI = frame_gray(faces[i]);
 	}
 	//save to file for our convenience 
 	imwrite("face.jpg", frame);
+
 
 }
 
@@ -87,9 +86,7 @@ void Detector::detectCircle(Mat frame)
 	for (size_t i = 0; i < circles.size(); i++)
 	{
 		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-		int radius = cvRound(circles[i][2]);
-		// circle center
-		circle(src, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+		int radius = cvRound(circles[i][2]);		
 		// circle outline
 		circle(src, center, radius, Scalar(0, 0, 255), 3, 8, 0);
 	}
@@ -121,7 +118,7 @@ Mat Detector::edgeDetectionFilter(ImageOf<PixelRgb>* yarp_img)
 	//delta, some option value, i dont get this :/
 	//pixel interpolation value
 	filter2D(src, dst, ddepth , kernel, anchor , delta, BORDER_DEFAULT);
-	return src;
+	return dst;
 
 }
 
@@ -162,7 +159,7 @@ Mat Detector::applyLinearFilter(ImageOf<PixelRgb>* yarp_img)
 	filter2D(src, dst, ddepth, kernel, anchor, delta, BORDER_DEFAULT);
 	//imwrite( "src.jpg", src );
 	//imwrite( "dst.jpg", dst );
-	return src;
+	return dst;
 }
 
 //we could not make it compile, there is problem with aruco installaytion i suppose
