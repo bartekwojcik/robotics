@@ -24,6 +24,9 @@ using namespace cv;
 
 //main function
 int main(int argc, char *argv[]) {
+	//
+	// Author: Thomas Triffterer
+	//
 	printf("Start\n");
 	Network yarp;
 	//if there are no ports specified then stop
@@ -97,11 +100,12 @@ int main(int argc, char *argv[]) {
 		}
 		else {
 			printf("NULL IMAGE\n");
+			return RESULT_ERR;
 		}
 	}
 
 
-	return 0;
+	return RESULT_OK;
 }
 
 
