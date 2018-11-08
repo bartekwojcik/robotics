@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
 	//Author: Bartosz Wójcik
 	//
 	Detector detector = Detector();
+	BufferedPort<ImageOf<PixelRgb> > port;
 	Property options;
 	ConstString portName = options.check("name",Value("/worker")).asString();
 	port.open(portName);
