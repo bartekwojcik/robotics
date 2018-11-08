@@ -129,15 +129,18 @@ Mat Detector::cannyEdgefilter(ImageOf<PixelRgb>* yarp_img)
 	Mat gray, edge, dst;
 	Mat copy = cv::cvarrToMat(static_cast<IplImage*>(yarp_img->getIplImage()));
 	Mat src = copy.clone();
-	//convert to grayscale
 	cvtColor(src, gray, CV_BGR2GRAY);
-	//use canny filter
-	//50 and 150 are thresholds for hystesis procedure
-	//3 - some size for sobel, dont know exactly 
-	Canny(gray, edge, 40, 170, 3);
+	/// Reduce noise with a kernel 3x3
+	blur(gray, edge, Size(3, 3));
 
+	/// Canny detector
+	Canny(edge, edge, 50, 150, 3);
 
-	edge.convertTo(dst, CV_8U);
+	/// Using Canny's output as a mask, we display our result
+	dst = Scalar::all(0);
+
+	src.copyTo(dst, edge);
+
 	return dst;
 }
 
