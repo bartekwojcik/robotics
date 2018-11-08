@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 			
 			ImageOf<PixelBgr> img;
 			img.setExternal(edgeFilter.data,edgeFilter.size[1],edgeFilter.size[0]); 
-			port.prepare() = *img;
+			img& = port.prepare();
 			port.write();
 			
 			//detect face
