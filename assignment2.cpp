@@ -99,9 +99,8 @@ int main(int argc, char *argv[]) {
 			printf("Is filter of ones empty: %d (0 is good, 1 is bad)\n", filtered.empty());
 			printf("is empty: %d (0 is good, 1 is bad)\n", filtered.empty());
 			
-			ImageOf<PixelBgr> img;
+			ImageOf<PixelBgr> img& = port.prepare();
 			img.setExternal(edgeFilter.data,edgeFilter.size[1],edgeFilter.size[0]); 
-			img& = port.prepare();
 			port.write();
 			
 			//detect face
