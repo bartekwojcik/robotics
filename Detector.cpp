@@ -104,7 +104,7 @@ Mat Detector::edgeDetectionFilter(ImageOf<PixelRgb>* yarp_img)
 	int ddepth = -1;
 	//copy data from yarp image
 	Mat copy = cv::cvarrToMat(static_cast<IplImage*>(yarp_img->getIplImage()));	
-	Mat src = copy.src();
+	Mat src = copy.clone();
 	//mask for edge detection
 	float mask[9] = { -1,-1,-1, -1, 8, -1, -1,-1,-1 };
 	Mat kernel(3, 3, CV_32FC1);
@@ -126,7 +126,7 @@ Mat Detector::edgeDetectionFilter(ImageOf<PixelRgb>* yarp_img)
 //https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html
 Mat Detector::cannyEdgefilter(ImageOf<PixelRgb>* yarp_img)
 {
-	Mat gray, edge, dst, src;
+	Mat gray, edge, dst;
 	Mat copy = cv::cvarrToMat(static_cast<IplImage*>(yarp_img->getIplImage()));
 	Mat src = copy.clone();
 	//convert to grayscale
