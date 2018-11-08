@@ -103,7 +103,8 @@ Mat Detector::edgeDetectionFilter(ImageOf<PixelRgb>* yarp_img)
 	int delta = 0;
 	int ddepth = -1;
 	//copy data from yarp image
-	Mat src = cv::cvarrToMat(static_cast<IplImage*>(yarp_img->getIplImage()));	
+	Mat copy = cv::cvarrToMat(static_cast<IplImage*>(yarp_img->getIplImage()));	
+	Mat src = copy.src();
 	//mask for edge detection
 	float mask[9] = { -1,-1,-1, -1, 8, -1, -1,-1,-1 };
 	Mat kernel(3, 3, CV_32FC1);
@@ -121,11 +122,29 @@ Mat Detector::edgeDetectionFilter(ImageOf<PixelRgb>* yarp_img)
 	return dst;
 
 }
+//https://en.wikipedia.org/wiki/Canny_edge_detector
+//https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html
+Mat Detector::cannyEdgefilter(ImageOf<PixelRgb>* yarp_img)
+{
+	Mat gray, edge, dst, src;
+	Mat copy = cv::cvarrToMat(static_cast<IplImage*>(yarp_img->getIplImage()));
+	Mat src = copy.clone();
+	//convert to grayscale
+	cvtColor(src, gray, CV_BGR2GRAY);
+	//use canny filter
+	//50 and 150 are thresholds for hystesis procedure
+	//3 - some size for sobel, dont know exactly 
+	Canny(gray, edge, 40, 170, 3);
+
+
+	edge.convertTo(dst, CV_8U);
+	return dst;
+}
 
 //function that uses standard, example from https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/filter_2d/filter_2d.html#filter-2d
 Mat Detector::applyLinearFilter(ImageOf<PixelRgb>* yarp_img)
 {
-	Mat src, dst;
+	Mat src, dst, copy;
 
 	Mat kernel;
 	Point anchor;
@@ -136,8 +155,8 @@ Mat Detector::applyLinearFilter(ImageOf<PixelRgb>* yarp_img)
 	int c;
 
 	//convert from yarp image to open cv mat class
-	src = cv::cvarrToMat(static_cast<IplImage*>(yarp_img->getIplImage()));
-
+	copy = cv::cvarrToMat(static_cast<IplImage*>(yarp_img->getIplImage()));
+	src = copy.clone();
 	/// Initialize arguments for the filter
 	anchor = Point(-1, -1);
 	delta = 0;

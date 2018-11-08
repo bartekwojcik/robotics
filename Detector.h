@@ -22,5 +22,6 @@ public:
 	void detectFace(Mat frame);
 	Mat applyLinearFilter(ImageOf<PixelRgb>* yarp_img);
 	Mat edgeDetectionFilter(ImageOf<PixelRgb>* yarp_img);
+	Mat cannyEdgefilter(ImageOf<PixelRgb>* yarp_img)
 };
 
