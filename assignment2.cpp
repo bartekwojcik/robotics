@@ -9,6 +9,7 @@
 using namespace yarp::os;
 using namespace yarp::sig;
 using namespace yarp::dev;
+using namespace yarp::sig::draw;
 #define RESULT_ERR -1
 #define RESULT_OK 0
 #include <stdio.h>
@@ -64,8 +65,16 @@ int main(int argc, char *argv[]) {
 	Network::connect(argv[2], imagePort.getName());
 	printf("got here 2\n");
 
+	//
+	//Author: Bartosz Wójcik
+	//
 	Detector detector = Detector();
-
+	Property options;
+	ConstString portName = options.check("name",Value("/worker")).asString();
+	port.open(portName);
+	//
+	// End of Bartosz Wójcik's code
+	//
 	//infinte loop reading feed
 	while (1) {
 
@@ -88,7 +97,12 @@ int main(int argc, char *argv[]) {
 			printf("After appying filter:");
 			printf("Is filter of ones empty: %d (0 is good, 1 is bad)\n", filtered.empty());
 			printf("is empty: %d (0 is good, 1 is bad)\n", filtered.empty());
-
+			
+			ImageOf<PixelBgr> img;
+			img.setExternal(edgeFilter.data,edgeFilter.size[1],edgeFilter.size[0]); 
+			port.prepare() = *img;
+			port.write();
+			
 			//detect face
 			detector.detectFace(filtered);
 
