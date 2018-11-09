@@ -57,7 +57,7 @@ void Detector::detectFace(Mat frame)
 		ellipse(src, center, Size(faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, Scalar(255, 255, 0), 4, 8, 0);		
 	}
 	//save to file for our convenience 
-	imwrite("detectedFace.jpg", frame);
+	imwrite("detectedFace.jpg", src);
 
 
 }
