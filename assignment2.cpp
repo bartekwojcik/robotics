@@ -94,6 +94,7 @@ int main(int argc, char *argv[]) {
 			//apply linear filter
 			Mat filtered = detector.applyLinearFilter(image);
 			Mat edgeFilter = detector.cannyEdgefilter(image);
+			Mat sobelFilter = detector.sobelFilter(image);
 			//print some details so we know that image is not empty
 			printf("After appying filter:");
 			printf("Is filter of ones empty: %d (0 is good, 1 is bad)\n", filtered.empty());

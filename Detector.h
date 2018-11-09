@@ -1,5 +1,5 @@
 //
-//Author: Bartosz Wójcik unsless stated otherwise
+//Author: Bartosz Wï¿½jcik unsless stated otherwise
 //
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -23,5 +23,6 @@ public:
 	Mat applyLinearFilter(ImageOf<PixelRgb>* yarp_img);
 	Mat edgeDetectionFilter(ImageOf<PixelRgb>* yarp_img);
 	Mat cannyEdgefilter(ImageOf<PixelRgb>* yarp_img);
+	Mat sobelFilter(ImageOf<PixelRgb>* yarp_img);
 };
 
