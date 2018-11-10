@@ -9,6 +9,7 @@
 using namespace yarp::os;
 using namespace yarp::sig;
 using namespace yarp::dev;
+using namespace yarp::sig::draw;
 #define RESULT_ERR -1
 #define RESULT_OK 0
 #include <stdio.h>
@@ -76,8 +77,17 @@ int main(int argc, char *argv[]) {
 	}
 	printf("got here 2\n");
 
+	//
+	//Author: Bartosz Wójcik
+	//
 	Detector detector = Detector();
-
+	BufferedPort<ImageOf<PixelRgb> > port;
+	Property options;
+	ConstString portName = options.check("name",Value("/worker")).asString();
+	port.open(portName);
+	//
+	// End of Bartosz Wójcik's code
+	//
 	//infinte loop reading feed
 	while (1) {
 
@@ -97,11 +107,16 @@ int main(int argc, char *argv[]) {
 			//apply linear filter
 			Mat filtered = detector.applyLinearFilter(image);
 			Mat edgeFilter = detector.cannyEdgefilter(image);
+			Mat sobelFilter = detector.sobelFilter(image);
 			//print some details so we know that image is not empty
 			printf("After appying filter:");
 			printf("Is filter of ones empty: %d (0 is good, 1 is bad)\n", filtered.empty());
 			printf("is empty: %d (0 is good, 1 is bad)\n", filtered.empty());
-
+			
+			ImageOf<PixelRgb>& img = port.prepare();
+			img.setExternal(edgeFilter.data,edgeFilter.size[1],edgeFilter.size[0]); 
+			port.write();
+			
 			//detect face
 			detector.detectFace(filtered);
 

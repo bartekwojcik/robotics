@@ -1,5 +1,5 @@
 //
-// Author: Bartosz Wójcik unless stated otherwise 
+// Author: Bartosz Wï¿½jcik unless stated otherwise 
 //
 #include "Detector.h"
 #include "opencv2/highgui/highgui.hpp"
@@ -54,12 +54,10 @@ void Detector::detectFace(Mat frame)
 		//find a faces center
 		Point center(faces[i].x + faces[i].width*0.5, faces[i].y + faces[i].height*0.5);
 		//draw an elipse
-		ellipse(src, center, Size(faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, Scalar(255, 255, 0), 4, 8, 0);
-
-		Mat faceROI = frame_gray(faces[i]);
+		ellipse(src, center, Size(faces[i].width*0.5, faces[i].height*0.5), 0, 0, 360, Scalar(255, 255, 0), 4, 8, 0);		
 	}
 	//save to file for our convenience 
-	imwrite("face.jpg", frame);
+	imwrite("detectedFace.jpg", src);
 
 
 }
@@ -67,8 +65,9 @@ void Detector::detectFace(Mat frame)
 //example circle detection from https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/hough_circle/hough_circle.html
 void Detector::detectCircle(Mat frame)
 {
-
-	Mat src = frame.clone();
+	//camera input is of low quality and it dones work unless circle is OBVIOUS
+	//:(
+	Mat src = imread("BlueCircle.png", 1);
 	Mat  src_gray;
 
 	/// Convert it to gray
@@ -91,7 +90,7 @@ void Detector::detectCircle(Mat frame)
 		circle(src, center, radius, Scalar(0, 0, 255), 3, 8, 0);
 	}
 
-	imwrite("circle.jpg", src);
+	imwrite("detectedCircle.jpg", src);
 }
 
 //https://en.wikipedia.org/wiki/Kernel_(image_processing)
@@ -119,6 +118,7 @@ Mat Detector::edgeDetectionFilter(ImageOf<PixelRgb>* yarp_img)
 	//delta, some option value, i dont get this :/
 	//pixel interpolation value
 	filter2D(src, dst, ddepth , kernel, anchor , delta, BORDER_DEFAULT);
+	imwrite("wikipediaEdgeDetectionWithKernel.jpg", dst);
 	return dst;
 
 }
@@ -140,11 +140,11 @@ Mat Detector::cannyEdgefilter(ImageOf<PixelRgb>* yarp_img)
 	dst = Scalar::all(0);
 
 	src.copyTo(dst, edge);
-
+	imwrite("cannyEdgeDetection.jpg", dst);
 	return dst;
 }
 
-//function that uses standard, example from https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/filter_2d/filter_2d.html#filter-2d
+//function that uses simple filter, example from https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/filter_2d/filter_2d.html#filter-2d
 Mat Detector::applyLinearFilter(ImageOf<PixelRgb>* yarp_img)
 {
 	Mat src, dst, copy;
@@ -181,7 +181,47 @@ Mat Detector::applyLinearFilter(ImageOf<PixelRgb>* yarp_img)
 	filter2D(src, dst, ddepth, kernel, anchor, delta, BORDER_DEFAULT);
 	//imwrite( "src.jpg", src );
 	//imwrite( "dst.jpg", dst );
+	imwrite("exampleEdgeDetection.jpg", dst);
 	return dst;
+}
+
+//sobel filter funcion
+//sobel derivatives are used for edge detection
+//using some scary maths they are convolving image with some small filter in both directions
+//which, i believe, leads to emphasising edges.
+//https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/sobel_derivatives/sobel_derivatives.html
+Mat Detector::sobelFilter(ImageOf<PixelRgb>* yarp_img)
+{
+	int scale = 1;
+    int delta = 0;
+    int ddepth = CV_16S;
+	Mat src, copy,src_gray, grad;
+	copy = cv::cvarrToMat(static_cast<IplImage*>(yarp_img->getIplImage()));
+	src = copy.clone();
+	//gausian blur to reduce noise 
+	GaussianBlur( src, src, Size(3,3), 0, 0, BORDER_DEFAULT );
+
+  /// Convert it to gray
+  cvtColor( src, src_gray, CV_BGR2GRAY );
+
+  /// Generate grad_x and grad_y
+  Mat grad_x, grad_y;
+  Mat abs_grad_x, abs_grad_y;
+
+  /// Gradient X
+  //Scharr( src_gray, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
+  Sobel( src_gray, grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT );
+  convertScaleAbs( grad_x, abs_grad_x );
+
+  /// Gradient Y
+  //Scharr( src_gray, grad_y, ddepth, 0, 1, scale, delta, BORDER_DEFAULT );
+  Sobel( src_gray, grad_y, ddepth, 0, 1, 3, scale, delta, BORDER_DEFAULT );
+  convertScaleAbs( grad_y, abs_grad_y );
+
+  /// Total Gradient (approximate)
+  addWeighted( abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad );
+  imwrite("sobelFilterEdgeDetection.jpg", grad);
+  return grad;
 }
 
 //we could not make it compile, there is problem with aruco installaytion i suppose
