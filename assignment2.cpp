@@ -31,8 +31,8 @@ int main(int argc, char *argv[]) {
 	Network yarp;
 	//if there are no ports specified then stop
 	if (argc <= 2) {
-		printf("Please specifie the Input port\n");
-		printf("Example: Imagereader /icubSim/cam /icubSim/cam/left\n");
+		printf("Please specify the correct parameters\n");
+		printf("Example: ./assignment2 /icubSim/cam /icubSim/cam/left\n");
 		return RESULT_ERR;
 	}
 	//print arguments
@@ -55,13 +55,25 @@ int main(int argc, char *argv[]) {
 	printf("got here 1\n");
 	result = imagePort.open("/cw2/image/rawIn");
 	if (result == false) {
+		//Close screenport, which was opened previous
+		screenPort.close();
 		printf("Could not open Image port\n");
 		return RESULT_ERR;
 	}
 
 	//connect ports
-	Network::connect(argv[1], "/icubSim/texture/screen");
-	Network::connect(argv[2], imagePort.getName());
+	result = Network::connect(argv[1], "/icubSim/texture/screen");
+	if (result == false) {
+		printf("Could not connect to screen port\n");
+		return RESULT_ERR;
+	}
+	result = Network::connect(argv[2], imagePort.getName());
+	if (result == false) {
+		printf("Could not connect to image evaluation port\n");
+		//Disconnect from screen
+		Network::disconnect(argv[1], "/icubSim/texture/screen");
+		return RESULT_ERR;
+	}
 	printf("got here 2\n");
 
 	Detector detector = Detector();
@@ -76,6 +88,7 @@ int main(int argc, char *argv[]) {
 
 		// check we actually got something							
 		if (image != NULL) {
+			//End of Thomas' code
 			//check size of image
 			printf("We got an image of size %dx%d\n", image->width(), image->height());
 			//
@@ -99,13 +112,19 @@ int main(int argc, char *argv[]) {
 			//
 		}
 		else {
+			//Author: Thomas
 			printf("NULL IMAGE\n");
+			Network::disconnect(argv[1], "/icubSim/texture/screen");
+			Network::disconnect(argv[2], imagePort.getName());
 			return RESULT_ERR;
+			//End of Thomas' code
 		}
 	}
-
-
+	//Author: Thomas
+	Network::disconnect(argv[1], "/icubSim/texture/screen");
+	Network::disconnect(argv[2], imagePort.getName());
 	return RESULT_OK;
+	//End of Thomas' code
 }
 
 
